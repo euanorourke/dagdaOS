@@ -1,5 +1,5 @@
 #include <stdint.h>
-#include "../stdlib/io.h"      // For outb()
+#include "../stdlib/io.h"
 #include "../include/drivers/vga.h"
 
 #define VGA_ADDRESS 0xB8000
@@ -9,20 +9,22 @@
 static char *vga_buffer = (char *)VGA_ADDRESS;
 static uint16_t cursor_x = 0;
 static uint16_t cursor_y = 0;
-static unsigned int cursor_position = 0;
 
-void vga_scroll(); // Forward declaration
+void vga_scroll();
+void move_cursor();
 
+// Clear the entire screen
 void vga_clear_screen() {
     for (unsigned int i = 0; i < VGA_COLUMNS * VGA_ROWS * 2; i += 2) {
         vga_buffer[i] = ' ';
-        vga_buffer[i+1] = 0x1F;
+        vga_buffer[i + 1] = 0x1F; // White on Blue
     }
-    cursor_position = 0;
     cursor_x = 0;
     cursor_y = 0;
+    move_cursor();
 }
 
+// Move hardware cursor
 void move_cursor() {
     uint16_t pos = cursor_y * VGA_COLUMNS + cursor_x;
     outb(0x3D4, 14);
@@ -31,57 +33,72 @@ void move_cursor() {
     outb(0x3D5, pos & 0xFF);
 }
 
-void _typechar(char c) {
-    static int position = 0; //pos of typed characters
-    char *video_memory = (char*) 0xB8000;
-
-    if (c == '\n') {
-        cursor_position += 80 - (position % 80); // newline
-    } else if (c == '\b') { 
-        if (cursor_position > 0 && position > 0) {
-            cursor_position--;
-            position--;
-            video_memory[cursor_position * 2] = ' ';
-            video_memory[cursor_position * 2 + 1] = 0x1F;
-        }
-    } else {
-        video_memory[cursor_position * 2] = c;
-        video_memory[cursor_position * 2 + 1] = 0x1F;
-        cursor_position++;
-        position++;
-    }
-
-    if (position >= VGA_COLUMNS * VGA_ROWS) {
-        vga_scroll();
-        position -= VGA_COLUMNS;
-    }
-}
-
-void _putchar(char c) {
-    static int position = 0;
-    char *video_memory = (char*) 0xB8000;
-
-    if (c == '\n') {
-        cursor_position += 80 - (cursor_position % 80); // newline
-    } else {
-        video_memory[cursor_position * 2] = c;
-        video_memory[cursor_position * 2 + 1] = 0x1F; // White on blue colour
-        cursor_position++;
-    }
-
-}
-
+// Scroll the screen upwards by one line
 void vga_scroll() {
+    // Copy each row to the row above
     for (unsigned int i = 0; i < (VGA_COLUMNS * (VGA_ROWS - 1)) * 2; i++) {
         vga_buffer[i] = vga_buffer[i + VGA_COLUMNS * 2];
     }
 
+    // Clear the last line
     for (unsigned int i = (VGA_COLUMNS * (VGA_ROWS - 1)) * 2; 
          i < VGA_COLUMNS * VGA_ROWS * 2; 
          i += 2) {
         vga_buffer[i] = ' ';
-        vga_buffer[i+1] = 0x1F;
+        vga_buffer[i + 1] = 0x1F; // White on Blue
     }
 
-    cursor_position -= VGA_COLUMNS;
+    cursor_y = VGA_ROWS - 1;
+}
+
+// Handle character typing with scrolling
+void _typechar(char c) {
+    if (c == '\n') {
+        cursor_x = 0;
+        cursor_y++;
+    } else if (c == '\b') {
+        if (cursor_x > 0) {
+            cursor_x--;
+            vga_buffer[(cursor_y * VGA_COLUMNS + cursor_x) * 2] = ' ';
+            vga_buffer[(cursor_y * VGA_COLUMNS + cursor_x) * 2 + 1] = 0x1F;
+        }
+    } else {
+        vga_buffer[(cursor_y * VGA_COLUMNS + cursor_x) * 2] = c;
+        vga_buffer[(cursor_y * VGA_COLUMNS + cursor_x) * 2 + 1] = 0x1F;
+        cursor_x++;
+    }
+
+    // Move to the next line if end of screen
+    if (cursor_x >= VGA_COLUMNS) {
+        cursor_x = 0;
+        cursor_y++;
+    }
+
+    // Scroll if necessary
+    if (cursor_y >= VGA_ROWS) {
+        vga_scroll();
+    }
+
+    move_cursor();
+}
+
+// Print a single character
+void _putchar(char c) {
+    _typechar(c);
+}
+
+// Print a backspace
+void vga_backspace() {
+    if (cursor_x > 0 || cursor_y > 0) {
+        if (cursor_x == 0 && cursor_y > 0) {
+            cursor_y--;
+            cursor_x = VGA_COLUMNS - 1;
+        } else {
+            cursor_x--;
+        }
+
+        vga_buffer[(cursor_y * VGA_COLUMNS + cursor_x) * 2] = ' ';
+        vga_buffer[(cursor_y * VGA_COLUMNS + cursor_x) * 2 + 1] = 0x1F;
+        move_cursor();
+    }
 }
