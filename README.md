@@ -2,6 +2,9 @@
 
 dagdaOS is a simple operating system written as an exercise in C and low-level programming.
 
+![image](https://github.com/user-attachments/assets/236ca8af-7746-47eb-a260-befdb7a0f858)
+
+
 ## Description
 
 dagdaOS is a simple operating system written as an exercise in C and low-level programming. A lot of the shell commands take inspiration from the Scottish Gaelic language. This operating system is not meant to replace anyones current operating system.
