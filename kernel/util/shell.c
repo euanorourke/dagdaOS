@@ -3,6 +3,8 @@
 #include "../../include/stdlib/strcmp.h"
 #include "../../include/stdlib/string.h"
 #include "../../include/stdlib/printf.h"
+#include "../../include/util/heap.h"
+#include "../../include/util/memory.h"
 
 #define INPUT_BUFFER_SIZE 128
 
@@ -14,6 +16,7 @@ void echo_command(const char *message);
 void clear_command();
 void help_command();
 void info_command();
+void memtest_command();
 
 // Shell Main Loop
 void shell() {
@@ -62,13 +65,14 @@ void shell_prompt() {
 
 // Handle Commands
 void handle_command(const char *input) {
-    if (strcmp(input, "clear") == 0) {
+    if (strcmp(input, "clior") == 0) {
         clear_command();
     } 
     else if (strncmp(input, "radh ", 5) == 0) {
         echo_command(input + 5); // Print everything after 'radh '
     } 
     else if (strcmp(input, "help") == 0) {
+        printf_("Sassenach...\n");
         help_command();
     }
     else if (strcmp(input, "cobhair") == 0) {
@@ -76,6 +80,9 @@ void handle_command(const char *input) {
     } 
     else if (strcmp(input, "foras") == 0) {
         info_command();
+    }
+    else if (strcmp(input, "memtest") == 0) {
+        memtest_command();
     } 
     else {
         printf_("Unknown command: %s\n", input);
@@ -94,8 +101,10 @@ void clear_command() {
 void help_command() {
     printf_("Available commands:\n");
     printf_("  cobhair/help    - Show available commands\n");
-    printf_("  clear           - Clear the screen\n");
+    printf_("  clior           - Clear the screen\n");
     printf_("  radh            - \"say\", Print a message (e.g., radh Hello)\n");
+    printf_("  foras           - \"information\", Displays information about the project\n");
+    printf_("  memtest         - Test the heap.");
 }
 
 void info_command() {
@@ -113,5 +122,19 @@ void info_command() {
  printf_("dagdaOS is a hobby operating system that uses\n");
  printf_("Scottish Gaelic as an inspiration for system commands.\n");
  printf_("This OS is not intended for daily use, it is written\n");
- printf_("as an excercise in C and low level programming.\n");                      
+ printf_("as an excercise in C and low level programming.\n");
+                     
+}
+
+void memtest_command(){
+    char *test = (char *)malloc(50);
+    if (test) {
+        printf_("Memory Allocated!\n");
+        memcpy(test, "Hello from heap!", 17);
+        printf_(test);
+        free(test);
+        printf_("\nMemory Freed.\n");
+    } else {
+        printf_("Memory Allocation Failed!\n");
+    }
 }
