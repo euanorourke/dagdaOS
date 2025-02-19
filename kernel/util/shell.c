@@ -1,6 +1,6 @@
 #include "../../include/drivers/vga.h"
 #include "../../include/drivers/keyboard.h"
-#include "../../include/stdlib/strcmp.h"
+
 #include "../../include/stdlib/string.h"
 #include "../../include/stdlib/printf.h"
 #include "../../include/util/heap.h"
