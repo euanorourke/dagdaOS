@@ -1,5 +1,6 @@
 #include "../../include/drivers/vga.h"
 #include "../../include/drivers/keyboard.h"
+#include "../../include/drivers/disk.h"
 
 #include "../../include/stdlib/string.h"
 #include "../../include/stdlib/printf.h"
@@ -17,6 +18,8 @@ void clear_command();
 void help_command();
 void info_command();
 void memtest_command();
+void disktest_command();
+void interrupttest_command();
 
 // Shell Main Loop
 void shell() {
@@ -84,6 +87,12 @@ void handle_command(const char *input) {
     else if (strcmp(input, "memtest") == 0) {
         memtest_command();
     } 
+    else if (strcmp(input, "disktest") == 0) {
+        disktest_command();
+    } 
+    else if (strcmp(input, "inttest") == 0) {
+        interrupttest_command();
+    } 
     else {
         printf_("Unknown command: %s\n", input);
     }
@@ -104,7 +113,9 @@ void help_command() {
     printf_("  clior           - Clear the screen\n");
     printf_("  radh            - \"say\", Print a message (e.g., radh Hello)\n");
     printf_("  foras           - \"information\", Displays information about the project\n");
-    printf_("  memtest         - Test the heap.");
+    printf_("  memtest         - Test the heap.\n");
+    printf_("  disktest        - Test the disk driver.\n");
+    printf_("  inttest         - Test interrupts.\n");
 }
 
 void info_command() {
@@ -137,4 +148,79 @@ void memtest_command(){
     } else {
         printf_("Memory Allocation Failed!\n");
     }
+}
+
+void disktest_command(){
+    printf_("dagdaOS: ATA PIO Disk Driver Test\n");
+
+    uint8_t buffer[512];
+
+    // Test reading a sector
+    if (ata_read_sector(0, 1, buffer) == 0) {
+        printf_("Read Success! First 16 bytes: ");
+        for (int i = 0; i < 16; i++) {
+            printf_("%02X ", buffer[i]);
+        }
+        printf_("\n");
+    } else {
+        printf_("Read Failed!\n");
+    }
+
+    // Test writing a sector
+    for (int i = 0; i < 512; i++) buffer[i] = i % 256;  // Fill buffer with test data
+
+    if (ata_write_sector(1, 1, buffer) == 0) {
+        printf_("Write Success!\n");
+    } else {
+        printf_("Write Failed!\n");
+    }
+    return;
+}
+
+void interrupttest_command(){
+    struct {
+        uint16_t limit;
+        uint32_t base;
+    } __attribute__((packed)) idtr;
+
+    printf_("dagdaOS: Interrupt Test\n");
+    __asm__ __volatile__("sidt %0" : "=m"(idtr));  // Store IDT register
+    printf("IDT Base: 0x%x, Limit: 0x%x\n", idtr.base, idtr.limit);
+    printf("-Interrupt 1-\n");
+    __asm__ __volatile__("int $0x01");
+    printf("-Interrupt 2-\n");
+    __asm__ __volatile__("int $0x02");
+    printf("-Interrupt 3-\n");
+    __asm__ __volatile__("int $0x03");
+    printf("-Interrupt 4-\n");
+    __asm__ __volatile__("int $0x04");
+    printf("-Interrupt 5-\n");
+    __asm__ __volatile__("int $0x05");
+    printf("-Interrupt 6-\n");
+    __asm__ __volatile__("int $0x06");
+    printf("-Interrupt 7-\n");
+    __asm__ __volatile__("int $0x07");
+    printf("-Interrupt 8-\n");
+    __asm__ __volatile__("int $0x08");
+    printf("-Interrupt 9-\n");
+    __asm__ __volatile__("int $0x09");
+    printf("-Interrupt 10-\n");
+    __asm__ __volatile__("int $0x0A");
+    printf("-Interrupt 11-\n");
+    __asm__ __volatile__("int $0x0B");
+    printf("-Interrupt 12-\n");
+    __asm__ __volatile__("int $0x0C");
+    printf("-Interrupt 13-\n");
+    __asm__ __volatile__("int $0x0D");
+    printf("-Interrupt 14-\n");
+    __asm__ __volatile__("int $0x0E");
+    printf("-Interrupt 15-\n");
+    __asm__ __volatile__("int $0x0F");
+    printf("-Interrupt 16-\n");
+    __asm__ __volatile__("int $0x11");
+    printf("-Interrupt 17-\n");
+    __asm__ __volatile__("int $0x12");
+    printf("-Interrupt 18-\n");
+    __asm__ __volatile__("int $0x13");
+    return;
 }

@@ -13,34 +13,39 @@ CFLAGS = -m32 -ffreestanding -fno-stack-protector -nostdlib -I$(INCLUDE_DIR) -O2
 LDFLAGS = -m elf_i386
 
 # Source Files
-KERNEL_ASM = $(BOOT_DIR)/kernel_entry.asm
 KERNEL_SRC = $(SRC_DIR)/kernel.c $(SRC_DIR)/drivers/vga.c $(SRC_DIR)/drivers/keyboard.c \
              $(SRC_DIR)/drivers/disk.c $(SRC_DIR)/stdlib/printf.c $(SRC_DIR)/util/helpers.c $(SRC_DIR)/util/shell.c \
-             $(SRC_DIR)/stdlib/string.c \
-             $(SRC_DIR)/util/memory.c $(SRC_DIR)/util/heap.c $(SRC_DIR)/filesystem/fat32.c  # Added fat32.c
+             $(SRC_DIR)/stdlib/string.c $(SRC_DIR)/util/memory.c $(SRC_DIR)/util/heap.c $(SRC_DIR)/filesystem/fat32.c \
+             $(SRC_DIR)/util/x86.c $(SRC_DIR)/interrupts/idt.c $(SRC_DIR)/interrupts/isr.c $(SRC_DIR)/interrupts/isr_defs.asm
+KERNEL_ASM = $(BOOT_DIR)/kernel_entry.asm $(SRC_DIR)/interrupts/gdt.asm  # Include gdt.asm here
 
 # Object Files
 KERNEL_OBJ = $(BUILD_DIR)/kernel_entry.o $(BUILD_DIR)/kernel.o $(BUILD_DIR)/vga.o \
              $(BUILD_DIR)/keyboard.o $(BUILD_DIR)/disk.o $(BUILD_DIR)/printf.o $(BUILD_DIR)/helpers.o \
-             $(BUILD_DIR)/shell.o \
-             $(BUILD_DIR)/string.o $(BUILD_DIR)/memory.o $(BUILD_DIR)/heap.o $(BUILD_DIR)/fat32.o  # Added fat32.o
+             $(BUILD_DIR)/shell.o $(BUILD_DIR)/string.o $(BUILD_DIR)/memory.o $(BUILD_DIR)/heap.o $(BUILD_DIR)/fat32.o \
+             $(BUILD_DIR)/x86.o $(BUILD_DIR)/idt.o $(BUILD_DIR)/isr.o $(BUILD_DIR)/isr_defs.o $(BUILD_DIR)/gdt.o  # Add gdt.o
 
 # Target Files
 KERNEL_BIN = $(BUILD_DIR)/kernel.bin
 ISO = $(BUILD_DIR)/dagdaOS.iso
-DISK_IMG = $(BUILD_DIR)/disk.img  # The disk image name
+DISK_IMG = $(BUILD_DIR)/disk.img
 
 # Default Target
 all: $(ISO) $(DISK_IMG)
 
 # ======= Compilation Rules =======
 
-# Assemble kernel entry
-$(BUILD_DIR)/kernel_entry.o: $(KERNEL_ASM)
+# Assemble Kernel Entry
+$(BUILD_DIR)/kernel_entry.o: $(BOOT_DIR)/kernel_entry.asm
 	mkdir -p $(BUILD_DIR)
 	$(AS) -f elf -o $@ $<
 
-# Compile Kernel and Drivers
+# Assemble GDT
+$(BUILD_DIR)/gdt.o: $(SRC_DIR)/interrupts/gdt.asm
+	mkdir -p $(BUILD_DIR)
+	$(AS) -f elf -o $@ $<
+
+# Compile Kernel & Drivers
 $(BUILD_DIR)/kernel.o: $(SRC_DIR)/kernel.c
 	$(CC) $(CFLAGS) -c -o $@ $<
 
@@ -54,11 +59,11 @@ $(BUILD_DIR)/keyboard.o: $(SRC_DIR)/drivers/keyboard.c
 $(BUILD_DIR)/disk.o: $(SRC_DIR)/drivers/disk.c
 	$(CC) $(CFLAGS) -c -o $@ $<
 
-# Compile FAT32 (New Addition)
+# Compile FAT32 Filesystem
 $(BUILD_DIR)/fat32.o: $(SRC_DIR)/filesystem/fat32.c
 	$(CC) $(CFLAGS) -c -o $@ $<
 
-# Compile Standard Library and Utilities
+# Compile Standard Library & Utilities
 $(BUILD_DIR)/printf.o: $(SRC_DIR)/stdlib/printf.c
 	$(CC) $(CFLAGS) -c -o $@ $<
 
@@ -79,9 +84,19 @@ $(BUILD_DIR)/memory.o: $(SRC_DIR)/util/memory.c
 $(BUILD_DIR)/heap.o: $(SRC_DIR)/util/heap.c
 	$(CC) $(CFLAGS) -c -o $@ $<
 
-# ======= Linking =======
+$(BUILD_DIR)/x86.o: $(SRC_DIR)/util/x86.c
+	$(CC) $(CFLAGS) -c -o $@ $<
 
-# Link Kernel
+$(BUILD_DIR)/idt.o: $(SRC_DIR)/interrupts/idt.c
+	$(CC) $(CFLAGS) -c -o $@ $<
+
+$(BUILD_DIR)/isr.o: $(SRC_DIR)/interrupts/isr.c
+	$(CC) $(CFLAGS) -c -o $@ $<
+
+$(BUILD_DIR)/isr_defs.o: $(SRC_DIR)/interrupts/isr_defs.asm
+	$(AS) -f elf -o $@ $<
+
+# ======= Linking =======
 $(KERNEL_BIN): $(KERNEL_OBJ)
 	$(LD) $(LDFLAGS) -T linker.ld -o $@ $^
 
