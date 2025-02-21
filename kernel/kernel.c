@@ -11,6 +11,7 @@
 #include "util/io.h"
 #include "multiboot.h"
 
+<<<<<<< HEAD
 #define HEAP_START 0x100000  // Start heap at 1MB
 #define HEAP_SIZE  0x100000  // 1MB heap size
 
@@ -29,6 +30,11 @@ void init(multiboot_info_t* mbd) {
 
 
 void kernelMain(multiboot_info_t* mbd) {
+=======
+#include "util/shell.h"
+
+void kernelMain(void) {
+>>>>>>> 6eea6ea (Initial commit)
     // Initialisation
     vga_clear_screen();
     init(mbd);
@@ -39,10 +45,20 @@ void kernelMain(multiboot_info_t* mbd) {
 
     
     printf_("       =================================================================\n");
+<<<<<<< HEAD
     printf_("       |                  dagdaOS : Build: 210225                      |\n");
+=======
+    printf_("       |                  dagdaOS : Build: 180225                      |\n");
+>>>>>>> 6eea6ea (Initial commit)
     printf_("       =================================================================\n");
     printf_("\n");
     printf_("Hello world! Start typing to get started!\n");
 
+<<<<<<< HEAD
     shell();
+=======
+    // Ideally for the shell we want to asynchronously poll the keyboard and then deal with that in the shell program but oh well :)
+    shell();
+    
+>>>>>>> 6eea6ea (Initial commit)
 }

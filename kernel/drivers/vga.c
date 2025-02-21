@@ -1,5 +1,9 @@
 #include <stdint.h>
+<<<<<<< HEAD
 #include "../../include/util/io.h"
+=======
+#include "../stdlib/io.h"
+>>>>>>> 6eea6ea (Initial commit)
 #include "../include/drivers/vga.h"
 
 #define VGA_ADDRESS 0xB8000
@@ -17,7 +21,11 @@ void move_cursor();
 void vga_clear_screen() {
     for (unsigned int i = 0; i < VGA_COLUMNS * VGA_ROWS * 2; i += 2) {
         vga_buffer[i] = ' ';
+<<<<<<< HEAD
         vga_buffer[i + 1] = 0x1F; // white on blue
+=======
+        vga_buffer[i + 1] = 0x1F; // White on Blue
+>>>>>>> 6eea6ea (Initial commit)
     }
     cursor_x = 0;
     cursor_y = 0;
@@ -51,7 +59,11 @@ void vga_scroll() {
     cursor_y = VGA_ROWS - 1;
 }
 
+<<<<<<< HEAD
 // Handle typing with scrolling
+=======
+// Handle character typing with scrolling
+>>>>>>> 6eea6ea (Initial commit)
 void _typechar(char c) {
     if (c == '\n') {
         cursor_x = 0;
@@ -68,12 +80,20 @@ void _typechar(char c) {
         cursor_x++;
     }
 
+<<<<<<< HEAD
     // Move to the next line if screen ends
+=======
+    // Move to the next line if end of screen
+>>>>>>> 6eea6ea (Initial commit)
     if (cursor_x >= VGA_COLUMNS) {
         cursor_x = 0;
         cursor_y++;
     }
 
+<<<<<<< HEAD
+=======
+    // Scroll if necessary
+>>>>>>> 6eea6ea (Initial commit)
     if (cursor_y >= VGA_ROWS) {
         vga_scroll();
     }

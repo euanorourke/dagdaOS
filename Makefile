@@ -13,6 +13,7 @@ CFLAGS = -m32 -ffreestanding -fno-stack-protector -nostdlib -I$(INCLUDE_DIR) -O2
 LDFLAGS = -m elf_i386
 
 # Source Files
+<<<<<<< HEAD
 KERNEL_SRC = $(SRC_DIR)/kernel.c $(SRC_DIR)/drivers/vga.c $(SRC_DIR)/drivers/keyboard.c \
              $(SRC_DIR)/drivers/disk.c $(SRC_DIR)/stdlib/printf.c $(SRC_DIR)/util/helpers.c $(SRC_DIR)/util/shell.c \
              $(SRC_DIR)/stdlib/string.c $(SRC_DIR)/util/memory.c $(SRC_DIR)/util/heap.c $(SRC_DIR)/filesystem/fat32.c \
@@ -24,6 +25,17 @@ KERNEL_OBJ = $(BUILD_DIR)/kernel_entry.o $(BUILD_DIR)/kernel.o $(BUILD_DIR)/vga.
              $(BUILD_DIR)/keyboard.o $(BUILD_DIR)/disk.o $(BUILD_DIR)/printf.o $(BUILD_DIR)/helpers.o \
              $(BUILD_DIR)/shell.o $(BUILD_DIR)/string.o $(BUILD_DIR)/memory.o $(BUILD_DIR)/heap.o $(BUILD_DIR)/fat32.o \
              $(BUILD_DIR)/x86.o $(BUILD_DIR)/idt.o $(BUILD_DIR)/isr.o $(BUILD_DIR)/isr_defs.o $(BUILD_DIR)/gdt.o  # Add gdt.o
+=======
+KERNEL_ASM = $(BOOT_DIR)/kernel_entry.asm
+KERNEL_SRC = $(SRC_DIR)/kernel.c $(SRC_DIR)/drivers/vga.c $(SRC_DIR)/drivers/keyboard.c \
+             $(SRC_DIR)/stdlib/printf.c $(SRC_DIR)/stdlib/helpers.c $(SRC_DIR)/util/shell.c \
+             $(SRC_DIR)/stdlib/strcmp.c $(SRC_DIR)/stdlib/strncmp.c $(SRC_DIR)/stdlib/string.c
+
+# Object Files
+KERNEL_OBJ = $(BUILD_DIR)/kernel_entry.o $(BUILD_DIR)/kernel.o $(BUILD_DIR)/vga.o \
+             $(BUILD_DIR)/keyboard.o $(BUILD_DIR)/printf.o $(BUILD_DIR)/helpers.o \
+             $(BUILD_DIR)/shell.o $(BUILD_DIR)/strcmp.o $(BUILD_DIR)/strncmp.o $(BUILD_DIR)/string.o
+>>>>>>> 6eea6ea (Initial commit)
 
 # Target Files
 KERNEL_BIN = $(BUILD_DIR)/kernel.bin
@@ -31,6 +43,7 @@ ISO = $(BUILD_DIR)/dagdaOS.iso
 DISK_IMG = $(BUILD_DIR)/disk.img
 
 # Default Target
+<<<<<<< HEAD
 all: $(ISO) $(DISK_IMG)
 
 # ======= Compilation Rules =======
@@ -46,6 +59,16 @@ $(BUILD_DIR)/gdt.o: $(SRC_DIR)/interrupts/gdt.asm
 	$(AS) -f elf -o $@ $<
 
 # Compile Kernel & Drivers
+=======
+all: $(ISO)
+
+# Assemble kernel entry
+$(BUILD_DIR)/kernel_entry.o: $(KERNEL_ASM)
+	mkdir -p $(BUILD_DIR)
+	$(AS) -f elf -o $@ $<
+
+# Compile Kernel and Drivers
+>>>>>>> 6eea6ea (Initial commit)
 $(BUILD_DIR)/kernel.o: $(SRC_DIR)/kernel.c
 	$(CC) $(CFLAGS) -c -o $@ $<
 
@@ -55,6 +78,7 @@ $(BUILD_DIR)/vga.o: $(SRC_DIR)/drivers/vga.c
 $(BUILD_DIR)/keyboard.o: $(SRC_DIR)/drivers/keyboard.c
 	$(CC) $(CFLAGS) -c -o $@ $<
 
+<<<<<<< HEAD
 # Compile Disk Driver
 $(BUILD_DIR)/disk.o: $(SRC_DIR)/drivers/disk.c
 	$(CC) $(CFLAGS) -c -o $@ $<
@@ -64,19 +88,35 @@ $(BUILD_DIR)/fat32.o: $(SRC_DIR)/filesystem/fat32.c
 	$(CC) $(CFLAGS) -c -o $@ $<
 
 # Compile Standard Library & Utilities
+=======
+# Compile Standard Library and Utilities
+>>>>>>> 6eea6ea (Initial commit)
 $(BUILD_DIR)/printf.o: $(SRC_DIR)/stdlib/printf.c
 	$(CC) $(CFLAGS) -c -o $@ $<
 
 $(BUILD_DIR)/helpers.o: $(SRC_DIR)/util/helpers.c
 	$(CC) $(CFLAGS) -c -o $@ $<
 
+<<<<<<< HEAD
 $(BUILD_DIR)/string.o: $(SRC_DIR)/stdlib/string.c
 	$(CC) $(CFLAGS) -c -o $@ $<
 
+=======
+$(BUILD_DIR)/strcmp.o: $(SRC_DIR)/stdlib/strcmp.c
+	$(CC) $(CFLAGS) -c -o $@ $<
+
+$(BUILD_DIR)/strncmp.o: $(SRC_DIR)/stdlib/strncmp.c
+	$(CC) $(CFLAGS) -c -o $@ $<
+
+$(BUILD_DIR)/string.o: $(SRC_DIR)/stdlib/string.c
+	$(CC) $(CFLAGS) -c -o $@ $<
+
+>>>>>>> 6eea6ea (Initial commit)
 # Compile Shell
 $(BUILD_DIR)/shell.o: $(SRC_DIR)/util/shell.c
 	$(CC) $(CFLAGS) -c -o $@ $<
 
+<<<<<<< HEAD
 # Compile Memory Management
 $(BUILD_DIR)/memory.o: $(SRC_DIR)/util/memory.c
 	$(CC) $(CFLAGS) -c -o $@ $<
@@ -101,6 +141,11 @@ $(KERNEL_BIN): $(KERNEL_OBJ)
 	$(LD) $(LDFLAGS) -T linker.ld -o $@ $^
 
 # ======= ISO Creation =======
+=======
+# Link Kernel
+$(KERNEL_BIN): $(KERNEL_OBJ)
+	$(LD) $(LDFLAGS) -T linker.ld -o $@ $^
+>>>>>>> 6eea6ea (Initial commit)
 
 # Copy kernel.bin to ISO folder
 $(ISO_DIR)/boot/kernel.bin: $(KERNEL_BIN)
@@ -128,6 +173,7 @@ $(ISO_DIR)/boot/grub/grub.cfg:
 $(ISO): $(ISO_DIR)/boot/kernel.bin $(ISO_DIR)/boot/disk.img $(ISO_DIR)/boot/grub/grub.cfg
 	grub-mkrescue -o $@ $(ISO_DIR)
 
+<<<<<<< HEAD
 # ======= Disk Image Creation =======
 
 $(DISK_IMG): $(KERNEL_BIN)
@@ -165,10 +211,13 @@ $(DISK_IMG): $(KERNEL_BIN)
 # Output the completion message
 	echo "Disk image created at $(DISK_IMG)"
 
+=======
+>>>>>>> 6eea6ea (Initial commit)
 # Clean Build Files
 clean:
 	rm -rf $(BUILD_DIR)/*
 	rm -rf $(ISO_DIR)
+<<<<<<< HEAD
 	rm -f $(DISK_IMG)
 
 # Run in QEMU (ISO)
@@ -186,3 +235,11 @@ debug: $(ISO)
 
 # ======= Default Behavior =======
 .PHONY: all clean run-iso run-disk debug
+=======
+	rm -f $(ISO)
+
+# Run in QEMU
+run: $(ISO)
+	qemu-system-i386 -cdrom $(ISO)
+
+>>>>>>> 6eea6ea (Initial commit)

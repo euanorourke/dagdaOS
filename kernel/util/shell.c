@@ -1,11 +1,17 @@
 #include "../../include/drivers/vga.h"
 #include "../../include/drivers/keyboard.h"
+<<<<<<< HEAD
 #include "../../include/drivers/disk.h"
 
 #include "../../include/stdlib/string.h"
 #include "../../include/stdlib/printf.h"
 #include "../../include/util/heap.h"
 #include "../../include/util/memory.h"
+=======
+#include "../../include/stdlib/strcmp.h"
+#include "../../include/stdlib/string.h"
+#include "../../include/stdlib/printf.h"
+>>>>>>> 6eea6ea (Initial commit)
 
 #define INPUT_BUFFER_SIZE 128
 
@@ -17,9 +23,12 @@ void echo_command(const char *message);
 void clear_command();
 void help_command();
 void info_command();
+<<<<<<< HEAD
 void memtest_command();
 void disktest_command();
 void interrupttest_command();
+=======
+>>>>>>> 6eea6ea (Initial commit)
 
 // Shell Main Loop
 void shell() {
@@ -68,14 +77,21 @@ void shell_prompt() {
 
 // Handle Commands
 void handle_command(const char *input) {
+<<<<<<< HEAD
     if (strcmp(input, "clior") == 0) {
+=======
+    if (strcmp(input, "clear") == 0) {
+>>>>>>> 6eea6ea (Initial commit)
         clear_command();
     } 
     else if (strncmp(input, "radh ", 5) == 0) {
         echo_command(input + 5); // Print everything after 'radh '
     } 
     else if (strcmp(input, "help") == 0) {
+<<<<<<< HEAD
         printf_("Sassenach...\n");
+=======
+>>>>>>> 6eea6ea (Initial commit)
         help_command();
     }
     else if (strcmp(input, "cobhair") == 0) {
@@ -83,6 +99,7 @@ void handle_command(const char *input) {
     } 
     else if (strcmp(input, "foras") == 0) {
         info_command();
+<<<<<<< HEAD
     }
     else if (strcmp(input, "memtest") == 0) {
         memtest_command();
@@ -92,6 +109,8 @@ void handle_command(const char *input) {
     } 
     else if (strcmp(input, "inttest") == 0) {
         interrupttest_command();
+=======
+>>>>>>> 6eea6ea (Initial commit)
     } 
     else {
         printf_("Unknown command: %s\n", input);
@@ -110,12 +129,17 @@ void clear_command() {
 void help_command() {
     printf_("Available commands:\n");
     printf_("  cobhair/help    - Show available commands\n");
+<<<<<<< HEAD
     printf_("  clior           - Clear the screen\n");
     printf_("  radh            - \"say\", Print a message (e.g., radh Hello)\n");
     printf_("  foras           - \"information\", Displays information about the project\n");
     printf_("  memtest         - Test the heap.\n");
     printf_("  disktest        - Test the disk driver.\n");
     printf_("  inttest         - Test interrupts.\n");
+=======
+    printf_("  clear           - Clear the screen\n");
+    printf_("  radh            - \"say\", Print a message (e.g., radh Hello)\n");
+>>>>>>> 6eea6ea (Initial commit)
 }
 
 void info_command() {
@@ -133,6 +157,7 @@ void info_command() {
  printf_("dagdaOS is a hobby operating system that uses\n");
  printf_("Scottish Gaelic as an inspiration for system commands.\n");
  printf_("This OS is not intended for daily use, it is written\n");
+<<<<<<< HEAD
  printf_("as an excercise in C and low level programming.\n");
                      
 }
@@ -223,4 +248,7 @@ void interrupttest_command(){
     printf("-Interrupt 18-\n");
     __asm__ __volatile__("int $0x13");
     return;
+=======
+ printf_("as an excercise in C and low level programming.\n");                      
+>>>>>>> 6eea6ea (Initial commit)
 }

@@ -1,5 +1,13 @@
 #include "../include/stdlib/string.h"
 
+<<<<<<< HEAD
+=======
+void memset(char *str, char val, unsigned int len) {
+    for (unsigned int i = 0; i < len; i++) {
+        str[i] = val;
+    }
+}
+>>>>>>> 6eea6ea (Initial commit)
 
 unsigned int strlen(const char *str) {
     unsigned int len = 0;
@@ -8,6 +16,7 @@ unsigned int strlen(const char *str) {
     }
     return len;
 }
+<<<<<<< HEAD
 int strcmp(const char *str1, const char *str2) {
     while (*str1 && (*str1 == *str2)) {
         str1++;
@@ -23,3 +32,5 @@ int strncmp(const char *str1, const char *str2, unsigned int n) {
     }
     return 0;
 }
+=======
+>>>>>>> 6eea6ea (Initial commit)
