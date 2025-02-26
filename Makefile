@@ -16,14 +16,16 @@ LDFLAGS = -m elf_i386
 KERNEL_SRC = $(SRC_DIR)/kernel.c $(SRC_DIR)/drivers/vga.c $(SRC_DIR)/drivers/keyboard.c \
              $(SRC_DIR)/drivers/disk.c $(SRC_DIR)/stdlib/printf.c $(SRC_DIR)/util/helpers.c $(SRC_DIR)/util/shell.c \
              $(SRC_DIR)/stdlib/string.c $(SRC_DIR)/util/memory.c $(SRC_DIR)/util/heap.c \
-             $(SRC_DIR)/interrupts/idt.c $(SRC_DIR)/interrupts/isr.c $(SRC_DIR)/interrupts/isr_defs.asm $(SRC_DIR)/interrupts/gdt.c $(SRC_DIR)/interrupts/irq.c
+             $(SRC_DIR)/interrupts/idt.c $(SRC_DIR)/interrupts/isr.c $(SRC_DIR)/interrupts/isr_defs.asm $(SRC_DIR)/interrupts/gdt.c \
+			 $(SRC_DIR)/interrupts/irq.c $(SRC_DIR)/filesystem/fat32.c
 KERNEL_ASM = $(BOOT_DIR)/kernel_entry.asm  # Include gdt.asm here
 
 # Object Files
 KERNEL_OBJ = $(BUILD_DIR)/kernel_entry.o $(BUILD_DIR)/kernel.o $(BUILD_DIR)/vga.o \
              $(BUILD_DIR)/keyboard.o $(BUILD_DIR)/disk.o $(BUILD_DIR)/printf.o $(BUILD_DIR)/helpers.o \
              $(BUILD_DIR)/shell.o $(BUILD_DIR)/string.o $(BUILD_DIR)/memory.o $(BUILD_DIR)/heap.o \
-             $(BUILD_DIR)/idt.o $(BUILD_DIR)/isr.o $(BUILD_DIR)/isr_defs.o $(BUILD_DIR)/gdt.o $(BUILD_DIR)/irq.o
+             $(BUILD_DIR)/idt.o $(BUILD_DIR)/isr.o $(BUILD_DIR)/isr_defs.o $(BUILD_DIR)/gdt.o \
+			 $(BUILD_DIR)/irq.o $(BUILD_DIR)/fat32.o
 
 # Target Files
 KERNEL_BIN = $(BUILD_DIR)/kernel.bin
@@ -52,6 +54,9 @@ $(BUILD_DIR)/keyboard.o: $(SRC_DIR)/drivers/keyboard.c
 
 # Compile Disk Driver
 $(BUILD_DIR)/disk.o: $(SRC_DIR)/drivers/disk.c
+	$(CC) $(CFLAGS) -c -o $@ $<
+	
+$(BUILD_DIR)/fat32.o: $(SRC_DIR)/filesystem/fat32.c
 	$(CC) $(CFLAGS) -c -o $@ $<
 
 # Compile Standard Library & Utilities

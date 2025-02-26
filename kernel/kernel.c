@@ -1,6 +1,7 @@
 #include "drivers/vga.h"
 
 #include "drivers/keyboard.h"
+#include "drivers/disk.h"
 
 #include "util/heap.h"
 #include "util/memory.h"
@@ -35,6 +36,14 @@ void init(multiboot_info_t* mbd) {
     printf_("Enabling keyboard...\n");
     outb(0x21, inb(0x21) & ~0x02);
     irq_install_handler(1, keyboard_handler);
+    // Disk IRQ
+
+    outb(0x21, inb(0x21) & ~0x40); // Enable IRQ14 (Primary IDE)
+    outb(0x21, inb(0x21) & ~0x80); // Enable IRQ15 (Secondary IDE)
+
+    irq_install_handler(14, ata_irq_handler);
+    irq_install_handler(15, ata_irq_handler);
+    ata_enable_interrupts();
     //outb(0x21, 0xFF);  // Mask all IRQs on PIC1
     //outb(0xA1, 0xFF);  // Mask all IRQs on PIC2
 }
@@ -53,6 +62,6 @@ void kernelMain(multiboot_info_t* mbd) {
     printf_("\n");
     printf_("Hello world! Start typing to get started!\n");
 
-    
+    __asm__ __volatile__("int $0x2E");
     shell();
 }

@@ -6,6 +6,7 @@
 #include "../../include/stdlib/printf.h"
 #include "../../include/util/heap.h"
 #include "../../include/util/memory.h"
+#include "../../include/filesystem/fat32.h"
 
 #define INPUT_BUFFER_SIZE 128
 
@@ -17,7 +18,10 @@ void echo_command(const char *message);
 void clear_command();
 void help_command();
 void info_command();
+void disktest_command();
 void memtest_command();
+void fat32_test_command();
+void create_file_command();
 
 void interrupttest_command();
 
@@ -86,10 +90,23 @@ void handle_command(const char *input) {
     } 
     else if (strcmp(input, "disktest") == 0) {
         _putchar('\n');
+        disktest_command();
     } 
     else if (strcmp(input, "inttest") == 0) {
         _putchar('\n');
         interrupttest_command();
+    } 
+    else if (strcmp(input, "fat32test") == 0) {
+        _putchar('\n');
+        fat32test_command();
+    } 
+    else if (strcmp(input, "reumh") == 0) {
+        _putchar('\n');
+        root_command();
+    } 
+    else if (strncmp(input, "faidhle ", 8) == 0) {
+        _putchar('\n');
+        create_file_command(input + 8);
     } 
     else {
         _putchar('\n');
@@ -115,6 +132,8 @@ void help_command() {
     printf_("  memtest         - Test the heap.\n");
     printf_("  disktest        - Test the disk driver.\n");
     printf_("  inttest         - Test interrupts.\n");
+    printf_("  reumh           - Show the root directory.\n");
+    printf_("  faidhle         - Create an empty file.\n");
 }
 
 void info_command() {
@@ -197,4 +216,59 @@ void interrupttest_command(){
     __asm__ __volatile__("int $0x13");
     return;
 
+}
+
+void disktest_command() {
+    uint16_t buffer[256];  // One sector (512 bytes = 256 * 2-byte words)
+
+    // Read sector 10
+    ata_read_sectors(10, 1, buffer);
+    printf_("Read completed!\n");
+
+    // Print sector data in hexadecimal format
+    printf_("Sector Data:\n");
+    for (int i = 0; i < 16; i++) {
+        printf_("%04x ", buffer[i]); // Print 16-bit values as hex
+        if ((i + 1) % 8 == 0) {
+            printf_("\n");  // Newline every 8 words
+        }
+    }
+    printf_("\n");
+
+    // Modify data and write it back
+    buffer[0] = 0x1234; // Modify the first word
+    ata_write_sectors(10, 1, buffer);
+    printf_("Write completed!\n");
+}
+
+void fat32test_command() {
+    FAT32BootSector boot;
+    fat32_read_boot_sector(&boot);
+    fat32_initialize_root_directory(&boot);
+    printf_("Writing to disk...\n");
+
+    char data[] = "Testing FAT32 write!";
+    
+    fat32_create_file("HELLO  TXT", (uint8_t*)data, sizeof(data), &boot);
+    
+    printf_("File write complete! Listing root directory...\n");
+    
+    fat32_list_root_directory(&boot);
+}
+
+void root_command() {
+    FAT32BootSector boot;
+    fat32_read_boot_sector(&boot);
+    fat32_list_root_directory(&boot);
+}
+
+void create_file_command(string filename){
+    FAT32BootSector boot;
+    fat32_read_boot_sector(&boot);
+    char data[] = "";
+    
+
+
+    fat32_create_file(filename, (uint8_t*)data, sizeof(data), &boot);
+    printf_("%s written to root. \n", filename);
 }
