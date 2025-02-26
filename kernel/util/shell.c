@@ -108,6 +108,10 @@ void handle_command(const char *input) {
         _putchar('\n');
         create_file_command(input + 8);
     } 
+    else if (strncmp(input, "leugh ", 6) == 0) {
+        _putchar('\n');
+        //read_file_command(input + 8);
+    } 
     else {
         _putchar('\n');
         printf_("Unknown command: %s\n", input);
@@ -272,3 +276,4 @@ void create_file_command(string filename){
     fat32_create_file(filename, (uint8_t*)data, sizeof(data), &boot);
     printf_("%s written to root. \n", filename);
 }
+
