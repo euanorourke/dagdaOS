@@ -33,6 +33,12 @@ dagdaOS is a simple operating system written as an exercise in C and low-level p
 ```
 qemu-system-i386 -cdrom bin/dagdaOS.iso
 ```
+* Running from disk:
+```
+make run-disk
+```
+
+dagdaOS hasn't yet been tested on physical hardware :)
 
 ## Authors
 
