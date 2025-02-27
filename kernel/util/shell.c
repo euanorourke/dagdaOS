@@ -8,6 +8,8 @@
 #include "../../include/util/memory.h"
 #include "../../include/filesystem/fat32.h"
 
+#include <stddef.h>
+
 #define INPUT_BUFFER_SIZE 128
 
 // Function declarations
@@ -110,7 +112,7 @@ void handle_command(const char *input) {
     } 
     else if (strncmp(input, "leugh ", 6) == 0) {
         _putchar('\n');
-        //read_file_command(input + 8);
+        read_file_command(input + 6);
     } 
     else {
         _putchar('\n');
@@ -137,7 +139,8 @@ void help_command() {
     printf_("  disktest        - Test the disk driver.\n");
     printf_("  inttest         - Test interrupts.\n");
     printf_("  reumh           - Show the root directory.\n");
-    printf_("  faidhle         - Create an empty file.\n");
+    printf_("  faidhle         - Create a file.\n");
+    printf_("  leugh           - Read a file.\n");
 }
 
 void info_command() {
@@ -266,14 +269,64 @@ void root_command() {
     fat32_list_root_directory(&boot);
 }
 
-void create_file_command(string filename){
+void create_file_command(const char *input) {
     FAT32BootSector boot;
     fat32_read_boot_sector(&boot);
-    char data[] = "";
-    
 
+    char filename[12] = {0};  // FAT32 filenames are 11 characters + null terminator
+    const char *data_start = strchr(input, ' ');  // Find the space separating filename and data
 
-    fat32_create_file(filename, (uint8_t*)data, sizeof(data), &boot);
-    printf_("%s written to root. \n", filename);
+    if (!data_start) {
+        printf_("Usage: faidhle <filename> <data>\n");
+        return;
+    }
+
+    size_t filename_length = data_start - input;
+    if (filename_length > 11) filename_length = 11;
+    strncpy(filename, input, filename_length);
+    filename[filename_length] = '\0';  // Null-terminate
+
+    const char *file_data = data_start + 1;  // Move past the space
+    size_t data_size = strlen(file_data);
+
+    if (data_size == 0) {
+        printf_("Error: No file content provided.\n");
+        return;
+    }
+
+    fat32_create_file(filename, (uint8_t *)file_data, data_size, &boot);
+    printf_("%s written to root.\n", filename);
 }
 
+
+void read_file_command(const char *filename){
+    FAT32BootSector boot;
+    fat32_read_boot_sector(&boot);
+
+    kernel_read_file(filename, &boot);  // Example: Reading HELLO.TXT
+}
+
+void kernel_read_file(const char *filename, FAT32BootSector *boot) {
+    FAT32DirectoryEntry *entry = fat32_find_file(filename, boot);
+    if (!entry) {
+        printf_("File not found: %s\n", filename);
+        return;
+    }
+
+    uint32_t first_cluster = ((uint32_t)entry->high_cluster << 16) | entry->low_cluster;
+    uint32_t file_size = entry->file_size;
+
+    uint8_t *file_buffer = (uint8_t *)malloc(file_size + 1);  // ✅ Add space for null-terminator
+    if (!file_buffer) {
+        printf_("Memory allocation failed!\n");
+        return;
+    }
+
+    memset(file_buffer, 0, file_size + 1);  // Ensure no garbage data
+    fat32_read_file(first_cluster, boot, file_buffer, file_size);
+
+    file_buffer[file_size] = '\0';   //Null-terminate for safe printing
+    printf_("File content:\n%.*s\n", file_size, file_buffer);  // ✅ Print exact bytes
+
+    free(file_buffer);
+}

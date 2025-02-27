@@ -57,7 +57,7 @@ void kernelMain(multiboot_info_t* mbd) {
     init(mbd);
     
     printf_("       =================================================================\n");
-    printf_("       |                  dagdaOS : Build: 260225                      |\n");
+    printf_("       |                  dagdaOS : Build: 270225                      |\n");
     printf_("       =================================================================\n");
     printf_("\n");
     printf_("Hello world! Start typing to get started!\n");

@@ -4,7 +4,7 @@ void fat32_read_boot_sector(FAT32BootSector* boot);
 
 uint32_t fat32_get_next_cluster(uint32_t current_cluster, FAT32BootSector *boot);
 
-void fat32_read_file(uint32_t cluster, FAT32BootSector *boot);
+void fat32_read_file(uint32_t cluster, FAT32BootSector *boot, uint8_t *buffer, uint32_t size);
 void fat32_initialize_root_directory(FAT32BootSector *boot);
 
 uint32_t fat32_find_free_directory_entry(FAT32BootSector *boot);
@@ -12,7 +12,7 @@ uint32_t fat32_find_free_directory_entry(FAT32BootSector *boot);
 void fat32_list_root_directory(FAT32BootSector* boot);
 void fat32_create_file(const char *filename, uint8_t *data, uint32_t size, FAT32BootSector *boot);
 uint32_t fat32_find_file_cluster(const char *filename, FAT32BootSector* boot);
-
+void fat32_set_cluster_value(uint32_t cluster, uint32_t value, FAT32BootSector *boot);
 
 typedef struct {
     char filename[11];      // 8.3 format: "FILENAMEEXT"
@@ -29,5 +29,7 @@ typedef struct {
     uint32_t file_size;     // File size in bytes
 } __attribute__((packed)) FAT32DirectoryEntry;
 
+
+FAT32DirectoryEntry* fat32_find_file(const char *filename, FAT32BootSector *boot);
 
 #endif
