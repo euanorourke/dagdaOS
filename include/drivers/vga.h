@@ -7,5 +7,7 @@ void vga_scroll();
 void vga_backspace();
 void _putchar(char c);
 void _typechar(char c);
+void _putchar_at(char c, int x, int y);
+
 
 #endif

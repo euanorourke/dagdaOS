@@ -86,6 +86,18 @@ void _putchar(char c) {
     _typechar(c);
 }
 
+void _putchar_at(char c, int x, int y) {
+    if (x < 0 || x >= VGA_COLUMNS || y < 0 || y >= VGA_ROWS) {
+        return; // Prevent out-of-bounds writes
+    }
+
+    uint16_t pos = (y * VGA_COLUMNS + x) * 2;
+    vga_buffer[pos] = c;
+    vga_buffer[pos + 1] = 0x1F; // White text on blue background
+
+    move_cursor(); // Keep the cursor in the right place
+}
+
 // Print a backspace
 void vga_backspace() {
     if (cursor_x > 0 || cursor_y > 0) {

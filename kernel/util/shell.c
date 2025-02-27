@@ -8,6 +8,8 @@
 #include "../../include/util/memory.h"
 #include "../../include/filesystem/fat32.h"
 
+#include "../../include/software/fionn.h"
+
 #include <stddef.h>
 
 #define INPUT_BUFFER_SIZE 128
@@ -113,11 +115,16 @@ void handle_command(const char *input) {
     else if (strncmp(input, "leugh ", 6) == 0) {
         _putchar('\n');
         read_file_command(input + 6);
+    }
+    else if (strncmp(input, "fionn ", 6) == 0) {
+        _putchar('\n');
+        fionn_main(input + 6);
     } 
     else {
         _putchar('\n');
         printf_("Unknown command: %s\n", input);
     }
+
 }
 
 // Commands
@@ -316,7 +323,7 @@ void kernel_read_file(const char *filename, FAT32BootSector *boot) {
     uint32_t first_cluster = ((uint32_t)entry->high_cluster << 16) | entry->low_cluster;
     uint32_t file_size = entry->file_size;
 
-    uint8_t *file_buffer = (uint8_t *)malloc(file_size + 1);  // ✅ Add space for null-terminator
+    uint8_t *file_buffer = (uint8_t *)malloc(file_size + 1);  // Add space for null-terminator
     if (!file_buffer) {
         printf_("Memory allocation failed!\n");
         return;
@@ -326,7 +333,7 @@ void kernel_read_file(const char *filename, FAT32BootSector *boot) {
     fat32_read_file(first_cluster, boot, file_buffer, file_size);
 
     file_buffer[file_size] = '\0';   //Null-terminate for safe printing
-    printf_("File content:\n%.*s\n", file_size, file_buffer);  // ✅ Print exact bytes
+    printf_("File content:\n%.*s\n", file_size, file_buffer);  // Print exact bytes
 
     free(file_buffer);
 }

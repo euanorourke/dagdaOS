@@ -13,7 +13,7 @@
 void fat32_read_boot_sector(FAT32BootSector* boot) {
     uint8_t buffer[SECTOR_SIZE];  // FAT32 uses 512-byte sectors
 
-    printf_("Reading boot sector...\n");
+    //printf_("Reading boot sector...\n");
     ata_read_sectors(2048, 1, buffer);  // Read sector 0 (MBR or Boot Sector)
 
     memcpy(boot, buffer, sizeof(FAT32BootSector));
