@@ -20,7 +20,7 @@ Now with a status bar at the bottom!
 
 char text_buffer[TEXT_BUFFER_SIZE];
 int text_index = 0;
-int cursor_x = 0, cursor_y = 0; // Cursor for text input
+int cursor_x = 0, cursor_y = 1; // Cursor for text input
 
 enum Mode { COMMAND_MODE, INSERT_MODE };
 enum Mode current_mode = COMMAND_MODE;
@@ -47,7 +47,8 @@ void fionn_main(string filename) {
     text_index = 0;
     vga_clear_screen();
     printf_("Fionn Text Editor - (Press 'i' to Insert, ':w' to save, ':q' to quit)\n");
-
+    cursor_y = 1; // Set cursor to below the title
+    cursor_x = 0;
     char command_buffer[COMMAND_BUFFER_SIZE];
     int command_index = 0;
 
@@ -65,21 +66,41 @@ void fionn_main(string filename) {
                 else if (c == '\b') { // Handle backspace
                     if (text_index > 0) {
                         text_index--;
-                        cursor_x--;
-                        text_buffer[text_index] = '\0';
-                        printf_("\b \b");
-                        move_cursor();
+                
+                        if ((text_buffer[text_index] == '\n') && cursor_y > 1) { // If deleting a newline
+                            cursor_y--;
+                
+                            // Find the last non-newline character in the previous line
+                            int prev_x = 0;
+                            int i = text_index - 1;
+                            while (i >= 0 && text_buffer[i] != '\n') {
+                                cursor_x--;
+                                i--;
+                                
+                            }
+                
+                             
+                        } else if (cursor_x > 0) {
+                            cursor_x--; // Normal character backspace
+                            vga_backspace();
+                        }
+                
+                        text_buffer[text_index] = '\0'; // Remove from buffer
+                        vga_backspace(); // Call VGA function to update screen
                     }
-                } 
+                }
+                
                 else if (c == '\n') { // New line
                     if (text_index < TEXT_BUFFER_SIZE - 1) {
-                        text_buffer[text_index++] = c;
+                        text_buffer[text_index++] = '\n'; // Just insert newline
+                        _putchar('\n');
+                        text_index++;
                         cursor_y++;
                         cursor_x = 0;
-                        _putchar(c);
                         move_cursor();
                     }
-                } 
+                }
+            
                 else if (text_index < TEXT_BUFFER_SIZE - 1) {
                     text_buffer[text_index++] = c;
                     cursor_x++;
@@ -107,9 +128,9 @@ void fionn_main(string filename) {
 
                         text_buffer[text_index] = '\0';
                         size_t data_size = strlen(text_buffer);
-                        
+                        update_status_bar("[SAVED]");
                         fat32_create_file(filename, (uint8_t *)text_buffer, data_size, &boot);
-                        update_status_bar("[SAVED]"); // You handle file saving with text_buffer[]
+                        
 
                     }
             
@@ -119,10 +140,12 @@ void fionn_main(string filename) {
                 else if (c == '\b') { // Handle backspace in command mode
                     if (command_index > 0) {
                         command_index--;
-                        printf_("\b \b");
-                        move_cursor();
+                        update_status_bar("");
                     }
-                } 
+                
+                    // Redraw status bar to prevent it from being erased
+                    update_status_bar(command_buffer);
+                }
                 else if (command_index < COMMAND_BUFFER_SIZE - 1) {
                     command_buffer[command_index++] = c; 
                     command_buffer[command_index] = '\0';

@@ -59,8 +59,9 @@ void _typechar(char c) {
     } else if (c == '\b') {
         if (cursor_x > 0) {
             cursor_x--;
-            vga_buffer[(cursor_y * VGA_COLUMNS + cursor_x) * 2] = ' ';
-            vga_buffer[(cursor_y * VGA_COLUMNS + cursor_x) * 2 + 1] = 0x1F;
+        } else if (cursor_x < 1){
+            cursor_y--;
+            cursor_x = VGA_COLUMNS - 1;
         }
     } else {
         vga_buffer[(cursor_y * VGA_COLUMNS + cursor_x) * 2] = c;
