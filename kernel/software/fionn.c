@@ -15,7 +15,6 @@
 
 /*
 Fionn - A basic text editor for DagdaOS with Insert Mode and Command Mode.
-Now with a status bar at the bottom!
 */
 
 char text_buffer[TEXT_BUFFER_SIZE];
